@@ -60,6 +60,8 @@ label{display:grid;gap:6px;font-weight:600;font-size:15px}
 .horario .quem{font-weight:600;font-size:17px}
 .horario .det{color:var(--suave);font-size:14px}
 .horario .obs{font-size:14px;margin-top:4px}
+.pago{display:inline-block;margin-top:6px;font-size:13px;font-weight:600;border-radius:3px;padding:2px 8px;background:#e3f3e8;color:#1d6b3a}
+.pago.nao{background:var(--nevoa);color:var(--suave);font-weight:500}
 .horario .lado{display:grid;gap:8px;justify-items:end}
 .horario select{padding:8px;font-size:15px}
 .horario a.zap{font-size:14px;font-weight:600;color:#178e47}
@@ -245,7 +247,8 @@ function desenhar() {
   const valor = feitos.reduce((t, i) => t + (PRECOS[i.servico] || 0), 0);
   const pl = (n, um, varios) => `<div><b>${n}</b>${n === 1 ? um : varios}</div>`;
   $("#resumo").innerHTML = pl(marcados.length, "marcado", "marcados") + pl(novos.length, "novo", "novos") +
-    pl(feitos.length, "feito", "feitos") + `<div><b>R$ ${valor}</b>em serviços feitos (pela tabela)</div>`;
+    pl(feitos.length, "feito", "feitos") + `<div><b>R$ ${valor}</b>em serviços feitos (pela tabela)</div>` +
+    `<div><b>R$ ${doDia.filter(i => i.pagamento === "pago" && i.status !== "cancelado").reduce((t, i) => t + Number(i.pagamento_valor), 0)}</b>já pago pelo site</div>`;
   if (!doDia.length) { $("#lista").innerHTML = '<p class="vazio">Nenhum horário marcado nesse dia.</p>'; return; }
   $("#lista").innerHTML = doDia.map(i => {
     const opc = SITUACOES.map(([v, t]) => `<option value="${v}"${v === i.status ? " selected" : ""}>${t}</option>`).join("");
@@ -257,6 +260,7 @@ function desenhar() {
     return `<article class="horario ${i.status}" data-id="${i.id}">
       <div class="h">${i.hora}</div>
       <div><div class="quem">${esc(i.nome)}</div><div class="det">${esc(i.servico)}, com ${esc(i.barbeiro)}</div>
+        ${i.pagamento === "pago" ? `<span class="pago">Pago pelo site: R$ ${Number(i.pagamento_valor).toFixed(0)} (${i.pagamento_forma === "pix" ? "Pix" : "cartão"})</span>` : `<span class="pago nao">Paga na barbearia</span>`}
         ${i.obs ? `<div class="obs">Obs.: ${esc(i.obs)}</div>` : ""}</div>
       <div class="lado"><label style="font-size:13px;gap:2px">Situação
         <select class="situacao" aria-label="Situação de ${esc(i.nome)} às ${i.hora}">${opc}</select></label>

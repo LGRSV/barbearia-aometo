@@ -214,7 +214,7 @@ footer a{color:#fff}
     <div class="recibo">
       <div class="valor" id="plano-valor"></div>
       <p id="plano-obs"></p>
-      <a class="botao botao-zap" id="assinar" target="_blank" rel="noopener">Assinar pelo WhatsApp</a>
+      <a class="botao botao-escuro" id="assinar" href="checkout.html?plano=1">Assinar o plano</a>
     </div>
   </div>
 </section>
@@ -339,7 +339,6 @@ $("#cardapio").addEventListener("click", e => {
 $("#plano-valor").innerHTML = CONFIG.plano.valor ? `R$ ${CONFIG.plano.valor}<small> por mês</small>` : "consulte";
 $("#plano-obs").textContent = CONFIG.plano.obs;
 $("#beneficios").innerHTML = CONFIG.plano.beneficios.map(b => `<li>${b}</li>`).join("");
-$("#assinar").href = zap("Olá! Quero saber como funciona o plano mensal.");
 
 // formulário: mostra os horários livres e grava a reserva na agenda
 async function rpc(nome, dados) {
@@ -383,6 +382,7 @@ async function montarHoras() {
 }
 dia.addEventListener("change", montarHoras); $("#barbeiro").addEventListener("change", montarHoras); montarHoras();
 
+const precoDe = nome => (CONFIG.servicos.find(s => s.nome === nome) || {}).preco || 0;
 const ERROS = {
   nome: "Escreva seu nome para o barbeiro saber quem vai.",
   telefone: "Confira seu WhatsApp com DDD, por exemplo (63) 99999-9999.",
@@ -423,8 +423,9 @@ $("#form").addEventListener("submit", async e => {
   const box = $("#feito");
   box.innerHTML = (r.ok
     ? `<h3>Horário reservado</h3><p>Pronto, ${esc(nome)}. Seu horário está guardado: <b>${quando}</b>, com ${esc(barb)}.</p>
-       <p>Não precisa fazer mais nada. O barbeiro pode te chamar no WhatsApp para confirmar. Se precisar desmarcar ou mudar, avise por lá.</p>`
+       <p>Você pode pagar agora pelo site ou na barbearia, no dia. O barbeiro pode te chamar no WhatsApp para confirmar.</p>`
     : `<h3>Não deu para reservar pelo site</h3><p>A conexão falhou. Mande o pedido pelo WhatsApp e o barbeiro marca para você.</p>`)
+    + (r.ok && precoDe($("#servico").value) ? `<a class="botao botao-escuro" id="pagar-agora" href="checkout.html?${new URLSearchParams({id: r.id, servico: $("#servico").value, dia: dia.value, hora: hora.value, barbeiro: barb, nome})}">Pagar agora: R$ ${precoDe($("#servico").value)} (Pix ou cartão)</a>` : "")
     + `<a class="botao botao-zap" id="enviar-zap" target="_blank" rel="noopener" href="${zap(msg.join("\n"))}">${r.ok ? "Avisar no WhatsApp (opcional)" : "Mandar pedido no WhatsApp"}</a>
        <button type="button" class="link" id="outro">Marcar outro horário</button>`;
   $("#form").hidden = true; box.hidden = false; box.focus({preventScroll: true}); box.scrollIntoView({block: "start"});
@@ -454,7 +455,7 @@ function responde(t) {
   if (/preco|valor|quanto|custa/.test(q)) return CONFIG.servicos.map(s => s.nome + ": " + preco(s.preco)).join("\n") + (CONFIG.servicos.some(s => s.preco == null) ? "\n\nOnde está \"consulte\", o barbeiro passa o valor no WhatsApp." : "");
   if (/hora|abre|fecha|funcion|domingo|sabado|aberto/.test(q)) return SEMANA.map(d => { const h = CONFIG.horarios[d]; return d + ": " + (h ? h[0] + " às " + h[1] : "fechado"); }).join("\n") + "\n\n" + CONFIG.horarioObs;
   if (/onde|endereco|local|fica|mapa|chegar/.test(q)) return CONFIG.endereco ? "Ficamos em " + CONFIG.endereco + "." + (CONFIG.mapa ? "\n" + link(CONFIG.mapa, "Abrir no Google Maps") : "") : "O endereço ainda não está no site. " + link(zap("Olá! Pode me mandar a localização da barbearia?"), "Pedir a localização pelo WhatsApp");
-  if (/plano|assinat|mensal/.test(q)) return (CONFIG.plano.valor ? "O plano custa R$ " + CONFIG.plano.valor + " por mês." : "") + "\n" + CONFIG.plano.beneficios.join("\n") + "\n\n" + link(zap("Olá! Quero saber como funciona o plano mensal."), "Assinar pelo WhatsApp");
+  if (/plano|assinat|mensal/.test(q)) return (CONFIG.plano.valor ? "O plano custa R$ " + CONFIG.plano.valor + " por mês." : "") + "\n" + CONFIG.plano.beneficios.join("\n") + "\n\n" + link("checkout.html?plano=1", "Assinar o plano");
   if (/pix|cartao|pagamento|pagar|dinheiro/.test(q)) return "Para formas de pagamento, confirme com o barbeiro:<br>" + atendentes();
   if (/atend|humano|pessoa|falar|whats|zap|contato/.test(q) || CONFIG.equipe.some(n => q.includes(n.toLowerCase()))) return "Escolha com quem falar:<br>" + atendentes();
   if (/\b(oi|ola|bom dia|boa tarde|boa noite|e ai)\b/.test(q)) return "Olá. Posso responder sobre horários, preços, endereço e plano mensal, ou passar você para o barbeiro.";

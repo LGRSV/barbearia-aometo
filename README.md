@@ -7,6 +7,7 @@ Página única em HTML, sem dependências: abrir `index.html` no navegador.
 ## O que faz
 - Tabela de preços com botão para marcar o serviço
 - Reserva de horário: o cliente vê só os horários livres e a reserva entra na agenda na hora (Supabase)
+- Pagamento (modelo de demonstração do Mercado Pago, sem cobrança): `checkout.html`, com Pix, cartão e plano mensal
 - Painel dos funcionários (`painel.html`): login, agenda do dia, próximos 7 dias, situação de cada horário e total recebido
 - Plano mensal
 - Chat de dúvidas com respostas automáticas e passagem para o barbeiro

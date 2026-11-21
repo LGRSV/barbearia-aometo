@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Pagamento | Barbearia AOMETO</title>
+<meta name="theme-color" content="#0d3267">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--marinho:#0d3267;--marinho-escuro:#08224a;--tinta:#162236;--aco:#c8ced8;--nevoa:#eef1f5;--branco:#fff;--suave:#5d6b80;--zap:#1fa855;--erro:#9b2c2c;--verde:#1d6b3a}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{background:var(--nevoa);color:var(--tinta);font:16px/1.5 Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+:focus-visible{outline:3px solid #5b8def;outline-offset:2px}
+a{color:var(--marinho)}
+h1,h2{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;line-height:1;color:var(--marinho)}
+.topo{background:var(--branco);border-bottom:1px solid var(--aco)}
+.topo .largura{display:flex;justify-content:space-between;align-items:center;height:58px}
+.topo b{font-family:"Big Shoulders Display";font-weight:900;font-size:22px;color:var(--marinho)}
+.largura{max-width:560px;margin:0 auto;padding:0 16px}
+.demo{background:#fff6d6;border-bottom:1px solid #e8d48a;font-size:14px;padding:10px 0}
+main{padding:28px 0 60px}
+h1{font-size:48px;margin-bottom:18px}
+.caixa{background:#fff;border:1px solid var(--aco);border-radius:6px;padding:18px 20px}
+.caixa + .caixa{margin-top:14px}
+.linha{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--nevoa)}
+.linha:last-child{border-bottom:0}
+.linha span{color:var(--suave)}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:12px;border-top:2px solid var(--marinho)}
+.total strong{font-family:"Big Shoulders Display";font-weight:900;font-size:40px;color:var(--marinho);line-height:1}
+h2{font-size:28px;margin:26px 0 10px}
+.formas{display:grid;gap:10px}
+.forma{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:start;background:#fff;border:2px solid var(--aco);border-radius:6px;padding:14px 16px;cursor:pointer}
+.forma input{margin-top:5px;width:18px;height:18px;accent-color:var(--marinho);grid-row:span 2}
+.forma b{font-size:17px}
+.forma small{color:var(--suave);font-size:14px}
+.forma:has(input:checked){border-color:var(--marinho);box-shadow:inset 0 0 0 1px var(--marinho)}
+label.campo{display:grid;gap:6px;font-weight:600;font-size:15px;margin-top:12px}
+input.texto{font:16px Archivo,sans-serif;border:1px solid #9aa5b5;border-radius:4px;padding:11px;width:100%}
+.botao{display:flex;width:100%;justify-content:center;align-items:center;border:0;border-radius:4px;padding:15px 18px;font:600 16px Archivo,sans-serif;cursor:pointer;text-decoration:none;background:var(--marinho);color:#fff;margin-top:20px}
+.botao:hover{background:var(--marinho-escuro)}
+.botao:disabled{opacity:.6;cursor:wait}
+.botao.claro{background:#fff;color:var(--marinho);border:1px solid var(--marinho);margin-top:10px}
+.botao.zap{background:var(--zap)}
+.seguro{font-size:13px;color:var(--suave);text-align:center;margin-top:10px}
+.alerta{color:var(--erro);font-size:15px;margin-top:10px;min-height:1.2em}
+.pix{display:grid;justify-items:center;gap:12px;text-align:center}
+.pix svg{width:220px;height:220px;border:1px solid var(--aco);border-radius:6px;background:#fff;padding:10px}
+.copia{display:flex;gap:8px;width:100%}
+.copia input{flex:1;font:13px ui-monospace,Consolas,monospace;border:1px solid #9aa5b5;border-radius:4px;padding:10px;color:var(--suave)}
+.copia button{border:1px solid var(--marinho);background:#fff;color:var(--marinho);border-radius:4px;padding:0 14px;font:600 14px Archivo,sans-serif;cursor:pointer}
+.esperando{display:flex;align-items:center;gap:10px;color:var(--suave);font-size:15px}
+.esperando i{flex:0 0 14px;width:14px;height:14px;border:2px solid var(--aco);border-top-color:var(--marinho);border-radius:50%;animation:gira 1s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.esperando i{animation:none}}
+.aprovado{text-align:center;display:grid;justify-items:center;gap:10px}
+.aprovado .check{width:64px;height:64px;border-radius:50%;background:var(--verde);display:grid;place-items:center}
+.aprovado h1{margin:6px 0 0}
+.nota{font-size:14px;color:var(--suave)}
+</style>
+</head>
+<body>
+<header class="topo"><div class="largura"><b>Barbearia AOMETO</b><a href="./">Voltar ao site</a></div></header>
+<div class="demo"><div class="largura"><b>Modelo de demonstração.</b> Nenhum valor é cobrado. Na versão final, o pagamento é feito pelo Mercado Pago.</div></div>
+
+<main class="largura">
+  <!-- etapa 1: escolher como pagar -->
+  <section id="etapa-escolher">
+    <h1 id="titulo">Pagamento</h1>
+    <div class="caixa" id="resumo"></div>
+    <div id="dados-plano" hidden>
+      <h2>Seus dados</h2>
+      <div class="caixa">
+        <label class="campo" style="margin-top:0">Seu nome<input class="texto" id="nome" autocomplete="name"></label>
+        <label class="campo">Seu WhatsApp<input class="texto" id="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(63) 99999-9999"></label>
+      </div>
+    </div>
+    <h2>Como você quer pagar?</h2>
+    <div class="formas" id="formas"></div>
+    <p class="alerta" id="erro" role="alert"></p>
+    <button class="botao" type="button" id="pagar"></button>
+    <p class="seguro" id="seguro"></p>
+  </section>
+
+  <!-- etapa 2a: Pix -->
+  <section id="etapa-pix" hidden>
+    <h1>Pague com Pix</h1>
+    <div class="caixa pix">
+      <p>Abra o app do seu banco, escolha <b>Pix com QR Code</b> e aponte a câmera.</p>
+      <svg id="qr" viewBox="0 0 29 29" role="img" aria-label="QR Code de exemplo"></svg>
+      <p class="nota">QR Code de exemplo. Não funciona para pagar.</p>
+      <p>Ou copie o código e use <b>Pix Copia e Cola</b>:</p>
+      <div class="copia"><input id="codigo-pix" readonly aria-label="Código Pix"><button type="button" id="copiar">Copiar</button></div>
+      <p class="esperando"><i aria-hidden="true"></i> Esperando o pagamento. Esta tela muda sozinha quando o Pix cair.</p>
+    </div>
+    <button class="botao" type="button" id="simular-pix">Simular Pix pago (demonstração)</button>
+    <button class="botao claro" type="button" id="trocar-pix">Escolher outra forma</button>
+  </section>
+
+  <!-- etapa 2b: cartão -->
+  <section id="etapa-cartao" hidden>
+    <h1>Cartão pelo Mercado Pago</h1>
+    <div class="caixa">
+      <p>Na versão final, aqui você vai para a página segura do Mercado Pago, digita os dados do cartão por lá e volta para cá com o pagamento aprovado.</p>
+      <p class="nota" style="margin-top:10px">A barbearia nunca vê o número do seu cartão.</p>
+    </div>
+    <button class="botao" type="button" id="simular-cartao">Simular cartão aprovado (demonstração)</button>
+    <button class="botao claro" type="button" id="trocar-cartao">Escolher outra forma</button>
+  </section>
+
+  <!-- etapa 3: aprovado -->
+  <section id="etapa-aprovado" class="aprovado" hidden>
+    <div class="check"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div>
+    <h1 id="aprovado-titulo">Pagamento aprovado</h1>
+    <p id="aprovado-texto"></p>
+    <div class="caixa" id="recibo" style="width:100%;text-align:left"></div>
+    <a class="botao zap" id="aprovado-zap" target="_blank" rel="noopener" hidden></a>
+    <a class="botao claro" href="./">Voltar ao site</a>
+  </section>
+</main>
+
+<script>
+const AGENDA = {url: "https://uabpevnjfcwidbjscowq.supabase.co", chave: "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh"};
+const WHATSAPP = "5563992394176";
+const PRECOS = {"Corte": 30, "Barba": 25, "Corte e barba": 50, "Pezinho": 10, "Sobrancelha": 10};
+const PLANO = 100;
+const DIAS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2, "0");
+const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const reais = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2});
+const q = new URLSearchParams(location.search);
+const plano = q.has("plano");
+const pedido = {id: q.get("id"), servico: q.get("servico"), dia: q.get("dia"), hora: q.get("hora"), barbeiro: q.get("barbeiro"), nome: q.get("nome")};
+const valor = plano ? PLANO : PRECOS[pedido.servico];
+
+async function rpc(nome, dados) {
+  const r = await fetch(AGENDA.url + "/rest/v1/rpc/" + nome, {method: "POST",
+    headers: {apikey: AGENDA.chave, "Content-Type": "application/json"}, body: JSON.stringify(dados)});
+  if (!r.ok) throw new Error("rede");
+  return r.json();
+}
+function mostrar(id) { ["escolher", "pix", "cartao", "aprovado"].forEach(e => $("#etapa-" + e).hidden = e !== id); scrollTo(0, 0); }
+
+// ---------- resumo ----------
+let quando = "";
+if (plano) {
+  $("#titulo").textContent = "Assinar o plano mensal";
+  $("#resumo").innerHTML = `<div class="linha"><span>Plano</span><b>Cortes de cabelo ilimitados</b></div>
+    <div class="linha"><span>Cobrança</span><b>Todo mês</b></div>
+    <p class="nota" style="margin-top:8px">Só o corte de cabelo. Barba e outros serviços são cobrados à parte. Cancele quando quiser.</p>
+    <div class="total"><span>Por mês</span><strong>${reais(PLANO)}</strong></div>`;
+  $("#dados-plano").hidden = false;
+} else if (pedido.id && valor) {
+  const d = new Date(pedido.dia + "T12:00");
+  quando = `${DIAS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${pedido.hora}`;
+  $("#resumo").innerHTML = `<div class="linha"><span>Serviço</span><b>${esc(pedido.servico)}</b></div>
+    <div class="linha"><span>Quando</span><b>${esc(quando)}</b></div>
+    <div class="linha"><span>Barbeiro</span><b>${esc(pedido.barbeiro)}</b></div>
+    <div class="total"><span>Total</span><strong>${reais(valor)}</strong></div>`;
+} else {
+  $("#etapa-escolher").innerHTML = `<h1>Pagamento</h1><div class="caixa"><p>Não achamos o horário para pagar. Reserve um horário no site e toque em <b>Pagar agora</b>.</p></div>
+    <a class="botao" href="./#marcar">Marcar horário</a>`;
+}
+
+// ---------- formas ----------
+const FORMAS = plano
+  ? [["cartao", "Cartão de crédito", "Cobrança automática todo mês pelo Mercado Pago"], ["pix", "Pix", "Você paga o primeiro mês agora; nos outros meses a barbearia manda o Pix"]]
+  : [["pix", "Pix", "Aprovado na hora"], ["cartao", "Cartão de crédito ou débito", "Pela página segura do Mercado Pago"], ["local", "Pagar na barbearia", "Dinheiro, Pix ou cartão no dia do corte"]];
+$("#formas").innerHTML = FORMAS.map(([v, t, s], i) =>
+  `<label class="forma"><input type="radio" name="forma" value="${v}"${i === 0 ? " checked" : ""}><b>${t}</b><small>${s}</small></label>`).join("");
+function textoBotao() {
+  const f = document.querySelector("input[name=forma]:checked").value;
+  $("#pagar").textContent = f === "local" ? "Combinado, pago na barbearia" : f === "pix" ? `Gerar Pix de ${reais(valor)}` : (plano ? `Assinar por ${reais(valor)} por mês` : `Pagar ${reais(valor)} com cartão`);
+  $("#seguro").textContent = f === "local" ? "Seu horário continua reservado." : "Pagamento processado pelo Mercado Pago.";
+}
+$("#formas").addEventListener("change", textoBotao);
+if (valor) textoBotao();
+
+// ---------- Pix de exemplo ----------
+function desenharQR(semente) {
+  let x = semente, out = "";
+  const rnd = () => (x = (x * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const olho = (cx, cy) => `<rect x="${cx}" y="${cy}" width="7" height="7" fill="#162236"/><rect x="${cx + 1}" y="${cy + 1}" width="5" height="5" fill="#fff"/><rect x="${cx + 2}" y="${cy + 2}" width="3" height="3" fill="#162236"/>`;
+  for (let i = 0; i < 29; i++) for (let j = 0; j < 29; j++) {
+    const canto = (i < 8 && j < 8) || (i < 8 && j > 20) || (i > 20 && j < 8);
+    if (!canto && rnd() > 0.52) out += `<rect x="${j}" y="${i}" width="1" height="1" fill="#162236"/>`;
+  }
+  $("#qr").innerHTML = out + olho(0, 0) + olho(22, 0) + olho(0, 22);
+}
+$("#copiar").onclick = async () => {
+  try { await navigator.clipboard.writeText($("#codigo-pix").value); } catch (e) { $("#codigo-pix").select(); }
+  $("#copiar").textContent = "Copiado";
+};
+
+// ---------- pagar ----------
+$("#pagar").onclick = () => {
+  const f = document.querySelector("input[name=forma]:checked").value;
+  $("#erro").textContent = "";
+  if (plano) {
+    const tel = $("#telefone").value.replace(/\D/g, "");
+    if ($("#nome").value.trim().length < 2) { $("#erro").textContent = "Escreva seu nome."; $("#nome").focus(); return; }
+    if (tel.length < 10 || tel.length > 13) { $("#erro").textContent = "Confira seu WhatsApp com DDD."; $("#telefone").focus(); return; }
+  }
+  if (f === "local") { location.href = "./"; return; }
+  if (f === "pix") {
+    desenharQR(Math.floor(Math.random() * 1e9));
+    $("#codigo-pix").value = "00020126MODELO-SEM-VALOR-BARBEARIA-AOMETO-" + valor + "-5204000053039865802BR6304DEMO";
+    mostrar("pix");
+  } else mostrar("cartao");
+};
+$("#trocar-pix").onclick = $("#trocar-cartao").onclick = () => mostrar("escolher");
+$("#simular-pix").onclick = () => aprovar("pix");
+$("#simular-cartao").onclick = () => aprovar("cartao");
+
+async function aprovar(forma) {
+  const nomeForma = forma === "pix" ? "Pix" : "cartão";
+  if (!plano) {
+    let r; try { r = await rpc("barbearia_pagar_demo", {p_id: pedido.id, p_forma: forma, p_valor: valor}); } catch (e) { r = {ok: false}; }
+    if (!r.ok) { mostrar("escolher"); $("#erro").textContent = "Não foi possível registrar o pagamento. Tente de novo ou pague na barbearia."; return; }
+    $("#aprovado-texto").textContent = "A barbearia já vê na agenda que o seu horário está pago.";
+    $("#recibo").innerHTML = `<div class="linha"><span>Serviço</span><b>${esc(pedido.servico)}</b></div><div class="linha"><span>Quando</span><b>${esc(quando)}</b></div>
+      <div class="linha"><span>Barbeiro</span><b>${esc(pedido.barbeiro)}</b></div><div class="linha"><span>Pago com</span><b>${nomeForma}</b></div>
+      <div class="total"><span>Total pago</span><strong>${reais(valor)}</strong></div>`;
+  } else {
+    const nome = $("#nome").value.trim();
+    $("#aprovado-titulo").textContent = "Plano assinado";
+    $("#aprovado-texto").textContent = forma === "cartao" ? "A cobrança vem todo mês no cartão. É só marcar os cortes pelo site." : "Primeiro mês pago. Nos próximos meses a barbearia manda o Pix.";
+    $("#recibo").innerHTML = `<div class="linha"><span>Plano</span><b>Cortes de cabelo ilimitados</b></div><div class="linha"><span>Nome</span><b>${esc(nome)}</b></div>
+      <div class="linha"><span>Pago com</span><b>${nomeForma}</b></div><div class="total"><span>Por mês</span><strong>${reais(PLANO)}</strong></div>`;
+    const z = $("#aprovado-zap"); z.hidden = false; z.textContent = "Avisar a barbearia no WhatsApp";
+    z.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(`Olá! Assinei o plano mensal pelo site.\n\nNome: ${nome}\nWhatsApp: ${$("#telefone").value}\nPagamento: ${nomeForma}`);
+  }
+  mostrar("aprovado");
+}
+</script>
+</body>
+</html>
