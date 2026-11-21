@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Barbearia AOMETO | Clube dos Oficiais, Palmas</title>
-<meta name="description" content="Barbearia do clube da AOMETO, em Palmas. Corte, barba e plano mensal. Marque seu horário pelo WhatsApp.">
+<meta name="description" content="Barbearia do clube da AOMETO, em Palmas. Corte, barba e plano mensal. Marque seu horário pelo site.">
 <meta name="theme-color" content="#0d3267">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -227,16 +227,18 @@ footer a{color:#fff}
       <form id="form" novalidate>
         <label>Seu nome<input id="nome" autocomplete="name" placeholder="Como devemos te chamar"></label>
         <label>Seu WhatsApp<input id="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(63) 99999-9999"></label>
+        <p class="alerta" id="erro-dados" role="alert"></p>
         <label>Serviço<select id="servico"></select></label>
         <label>Barbeiro<select id="barbeiro"></select></label>
         <label>Dia<input type="date" id="dia"></label>
         <div>
-          <p class="rotulo">Horário <small>os riscados já estão ocupados</small></p>
+          <p class="rotulo">Horário <small>riscado = ocupado ou já passou</small></p>
           <div class="horas" id="horas" role="group" aria-label="Horários livres"></div>
           <input type="hidden" id="hora">
+          <p class="alerta" id="aviso-dia" role="alert" style="margin-top:8px"></p>
         </div>
         <label>Observação <small>opcional</small><textarea id="obs" rows="2" placeholder="Por exemplo: degradê baixo, barba só alinhar"></textarea></label>
-        <p class="alerta" id="aviso-dia" role="alert"></p>
+        <p class="alerta" id="aviso-envio" role="alert"></p>
         <button class="botao botao-escuro" type="submit" id="reservar">Reservar horário</button>
       </form>
       <div class="feito" id="feito" role="status" tabindex="-1" hidden></div>
@@ -295,8 +297,8 @@ const CONFIG = {
     {nome: "Pezinho", desc: "Contorno e nuca entre um corte e outro.", preco: 10, min: 15},
     {nome: "Sobrancelha", desc: "Alinhamento na navalha.", preco: 10, min: 10}
   ],
-  plano: {valor: 100, beneficios: ["Cortes de cabelo ilimitados no mês", "Vale só para o corte de cabelo; barba e outros serviços são à parte", "Prioridade na agenda", "Pagamento mensal por Pix, sem fidelidade"],
-          obs: "Corte de cabelo à vontade durante o mês. É só marcar o horário."},
+  plano: {valor: 100, beneficios: ["Cortes de cabelo ilimitados no mês", "Pagamento mensal por Pix", "Sem fidelidade"],
+          obs: "Só o corte de cabelo. Barba e outros serviços são cobrados à parte."},
   horarios: {Segunda: ["09:00","19:00"], "Terça": ["09:00","19:00"], Quarta: ["09:00","19:00"], Quinta: ["09:00","19:00"],
              Sexta: ["09:00","19:00"], "Sábado": ["08:00","17:00"], Domingo: null},
   horarioObs: "Em feriados o horário pode mudar. Na dúvida, chame no WhatsApp antes de ir."
@@ -346,7 +348,7 @@ async function rpc(nome, dados) {
   if (!r.ok) throw new Error("rede " + r.status);
   return r.json();
 }
-$("#servico").innerHTML = CONFIG.servicos.map(s => `<option>${s.nome}</option>`).join("") + "<option>Plano mensal</option>";
+$("#servico").innerHTML = CONFIG.servicos.map(s => `<option>${s.nome}</option>`).join("") + "<option>Corte (sou do plano mensal)</option>";
 $("#barbeiro").innerHTML = "<option>Qualquer um</option>" + CONFIG.equipe.map(n => `<option>${n}</option>`).join("");
 const dia = $("#dia"), hora = $("#hora"), aviso = $("#aviso-dia");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -357,10 +359,11 @@ async function montarHoras() {
   const box = $("#horas"), n = ++rodada; box.innerHTML = ""; aviso.textContent = ""; hora.value = "";
   if (!dia.value) { box.innerHTML = '<span class="vazio">Escolha o dia para ver os horários livres.</span>'; return; }
   const d = new Date(dia.value + "T12:00"), h = CONFIG.horarios[DIAS[d.getDay()]];
-  if (!h) { aviso.textContent = "A barbearia não abre " + DIAS[d.getDay()].toLowerCase() + ". Escolha outro dia."; return; }
+  if (!h) { aviso.textContent = "Fechado aos " + DIAS[d.getDay()].toLowerCase() + "s. Escolha outro dia."; return; }
   box.innerHTML = '<span class="vazio">Procurando horários livres...</span>';
   let ocupados = [];
-  try { ocupados = await rpc("barbearia_ocupados", {p_dia: dia.value}); } catch (e) { ocupados = []; }
+  let falhou = false;
+  try { ocupados = await rpc("barbearia_ocupados", {p_dia: dia.value}); } catch (e) { ocupados = []; falhou = true; }
   if (n !== rodada) return;
   box.innerHTML = "";
   const escolhido = $("#barbeiro").value, agora = new Date();
@@ -375,7 +378,8 @@ async function montarHoras() {
     b.onclick = () => { hora.value = hh; [...box.children].forEach(c => c.setAttribute("aria-pressed", c === b)); aviso.textContent = ""; };
     box.appendChild(b);
   }
-  if (!livres) aviso.textContent = "Não há horário livre nesse dia. Escolha outro dia" + (escolhido === "Qualquer um" ? "." : " ou outro barbeiro.");
+  if (falhou) aviso.textContent = "Não conseguimos ver os horários ocupados agora. Tente de novo em instantes ou chame no WhatsApp.";
+  else if (!livres) aviso.textContent = "Não há horário livre nesse dia. Escolha outro dia" + (escolhido === "Qualquer um" ? "." : " ou outro barbeiro.");
 }
 dia.addEventListener("change", montarHoras); $("#barbeiro").addEventListener("change", montarHoras); montarHoras();
 
@@ -389,13 +393,14 @@ const ERROS = {
 };
 $("#form").addEventListener("submit", async e => {
   e.preventDefault();
-  const nome = $("#nome").value.trim(), tel = $("#telefone").value.replace(/\D/g, "");
-  if (nome.length < 2) { aviso.textContent = ERROS.nome; $("#nome").focus(); return; }
-  if (tel.length < 10 || tel.length > 13) { aviso.textContent = ERROS.telefone; $("#telefone").focus(); return; }
+  const nome = $("#nome").value.trim(), tel = $("#telefone").value.replace(/\D/g, ""), erroDados = $("#erro-dados"), envio = $("#aviso-envio");
+  erroDados.textContent = ""; envio.textContent = "";
+  if (nome.length < 2) { erroDados.textContent = ERROS.nome; $("#nome").focus(); return; }
+  if (tel.length < 10 || tel.length > 13) { erroDados.textContent = ERROS.telefone; $("#telefone").focus(); return; }
   if (!dia.value) { aviso.textContent = "Escolha o dia."; dia.focus(); return; }
   const d = new Date(dia.value + "T12:00");
-  if (!CONFIG.horarios[DIAS[d.getDay()]]) { aviso.textContent = "A barbearia não abre nesse dia. Escolha outro."; return; }
-  if (!hora.value) { aviso.textContent = "Escolha um dos horários livres."; return; }
+  if (!CONFIG.horarios[DIAS[d.getDay()]]) { aviso.textContent = "Fechado aos " + DIAS[d.getDay()].toLowerCase() + "s. Escolha outro dia."; dia.focus(); return; }
+  if (!hora.value) { aviso.textContent = "Escolha um dos horários livres."; $("#horas").scrollIntoView({block: "center"}); return; }
   const botao = $("#reservar"); botao.disabled = true; botao.textContent = "Reservando..."; aviso.textContent = "";
   let r;
   try {
@@ -404,8 +409,10 @@ $("#form").addEventListener("submit", async e => {
   } catch (err) { r = {ok: false, erro: "rede"}; }
   botao.disabled = false; botao.textContent = "Reservar horário";
   if (!r.ok && r.erro !== "rede") {
-    aviso.textContent = ERROS[r.erro] || "Não foi possível reservar. Tente de novo.";
-    if (r.erro === "ocupado" || r.erro === "horario") montarHoras();
+    const m = ERROS[r.erro] || "Não foi possível reservar. Tente de novo.";
+    if (r.erro === "nome" || r.erro === "telefone") erroDados.textContent = m;
+    else if (r.erro === "ocupado" || r.erro === "horario") { await montarHoras(); aviso.textContent = m; }
+    else envio.textContent = m;
     return;
   }
   const quando = `${DIAS[d.getDay()].toLowerCase()}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${hora.value}`;
@@ -415,10 +422,10 @@ $("#form").addEventListener("submit", async e => {
   if ($("#obs").value.trim()) msg.push("Observação: " + $("#obs").value.trim());
   const box = $("#feito");
   box.innerHTML = (r.ok
-    ? `<h3>Horário reservado</h3><p>${esc(nome)}, seu horário ficou para <b>${quando}</b>, com ${esc(barb)}. Ele já está na agenda da barbearia.</p>
-       <p>Se precisar desmarcar ou mudar, avise pelo WhatsApp.</p>`
+    ? `<h3>Horário reservado</h3><p>Pronto, ${esc(nome)}. Seu horário está guardado: <b>${quando}</b>, com ${esc(barb)}.</p>
+       <p>Não precisa fazer mais nada. O barbeiro pode te chamar no WhatsApp para confirmar. Se precisar desmarcar ou mudar, avise por lá.</p>`
     : `<h3>Não deu para reservar pelo site</h3><p>A conexão falhou. Mande o pedido pelo WhatsApp e o barbeiro marca para você.</p>`)
-    + `<a class="botao botao-zap" id="enviar-zap" target="_blank" rel="noopener" href="${zap(msg.join("\n"))}">${r.ok ? "Avisar no WhatsApp" : "Mandar pedido no WhatsApp"}</a>
+    + `<a class="botao botao-zap" id="enviar-zap" target="_blank" rel="noopener" href="${zap(msg.join("\n"))}">${r.ok ? "Avisar no WhatsApp (opcional)" : "Mandar pedido no WhatsApp"}</a>
        <button type="button" class="link" id="outro">Marcar outro horário</button>`;
   $("#form").hidden = true; box.hidden = false; box.focus({preventScroll: true}); box.scrollIntoView({block: "start"});
   $("#outro").onclick = () => { box.hidden = true; $("#form").hidden = false; montarHoras(); dia.focus(); };

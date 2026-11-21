@@ -82,14 +82,15 @@ dialog h2{font-size:30px}
   <h1>Agenda</h1>
   <p class="sub">Barbearia AOMETO. Área dos funcionários.</p>
   <form class="cartao" id="form-entrar">
-    <label>Usuário<input id="usuario" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+    <label>Usuário<input id="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="dica-usuario"></label>
+    <p class="legenda" id="dica-usuario" style="margin-top:-8px">Use o usuário que o responsável te passou.</p>
     <label>Senha<input id="senha" type="password" autocomplete="current-password"></label>
     <p class="alerta" id="erro-entrar" role="alert"></p>
     <button class="botao" type="submit" id="entrar">Entrar</button>
-    <button class="link" type="button" id="ir-primeiro">Primeiro acesso: criar minha senha</button>
+    <button class="link" type="button" id="ir-primeiro">Primeira vez aqui? Crie sua senha</button>
   </form>
   <form class="cartao" id="form-primeiro" hidden>
-    <p>Crie a sua senha. Isso só funciona uma vez, no primeiro acesso.</p>
+    <p>Faça isso só uma vez. Use o usuário que você recebeu e crie uma senha com pelo menos 6 letras ou números. Depois, entre sempre pela tela anterior.</p>
     <label>Usuário<input id="p-usuario" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
     <label>Nova senha <input id="p-senha" type="password" autocomplete="new-password" minlength="6"></label>
     <label>Repita a senha<input id="p-senha2" type="password" autocomplete="new-password"></label>
@@ -116,12 +117,13 @@ dialog h2{font-size:30px}
       <button class="passo" type="button" id="depois" aria-label="Próximo dia">›</button>
       <button class="link" type="button" id="hoje">Hoje</button>
     </div>
+    <p class="legenda" style="margin:4px 0 2px">Próximos dias (clientes marcados)</p>
     <nav class="semana" id="semana" aria-label="Próximos dias"></nav>
     <div class="filtros">
       <label>Barbeiro<select id="filtro"></select></label>
     </div>
     <section class="resumo" id="resumo" aria-live="polite"></section>
-    <p class="legenda">Cor da faixa: amarela é pedido novo, azul é confirmado, verde é feito, cinza é cancelado ou faltou.</p>
+    <p class="legenda">Faixa amarela = novo. Chame o cliente no WhatsApp e mude a situação para Confirmado (azul). Depois do corte, mude para Feito (verde). Cinza = cancelado ou faltou.</p>
     <section class="lista" id="lista"></section>
   </main>
 </div>
@@ -140,8 +142,8 @@ dialog h2{font-size:30px}
 <script>
 const AGENDA = {url: "https://uabpevnjfcwidbjscowq.supabase.co", chave: "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh"};
 const EQUIPE = ["Funcionário X", "Funcionário Y"];
-const PRECOS = {"Corte": 30, "Barba": 25, "Corte e barba": 50, "Pezinho": 10, "Sobrancelha": 10, "Plano mensal": 0};
-const SITUACOES = [["pendente", "Novo, a confirmar"], ["confirmado", "Confirmado"], ["feito", "Feito"], ["faltou", "Cliente faltou"], ["cancelado", "Cancelado"]];
+const PRECOS = {"Corte": 30, "Barba": 25, "Corte e barba": 50, "Pezinho": 10, "Sobrancelha": 10, "Corte (sou do plano mensal)": 0, "Plano mensal": 0};
+const SITUACOES = [["pendente", "Novo"], ["confirmado", "Confirmado"], ["feito", "Feito"], ["faltou", "Cliente faltou"], ["cancelado", "Cancelado"]];
 const DIAS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
 
 const $ = s => document.querySelector(s);
@@ -242,21 +244,23 @@ function desenhar() {
   const novos = doDia.filter(i => i.status === "pendente");
   const valor = feitos.reduce((t, i) => t + (PRECOS[i.servico] || 0), 0);
   const pl = (n, um, varios) => `<div><b>${n}</b>${n === 1 ? um : varios}</div>`;
-  $("#resumo").innerHTML = pl(marcados.length, "marcado", "marcados") + pl(novos.length, "a confirmar", "a confirmar") +
-    pl(feitos.length, "feito", "feitos") + `<div><b>R$ ${valor}</b>recebido nos feitos</div>`;
+  $("#resumo").innerHTML = pl(marcados.length, "marcado", "marcados") + pl(novos.length, "novo", "novos") +
+    pl(feitos.length, "feito", "feitos") + `<div><b>R$ ${valor}</b>em serviços feitos (pela tabela)</div>`;
   if (!doDia.length) { $("#lista").innerHTML = '<p class="vazio">Nenhum horário marcado nesse dia.</p>'; return; }
   $("#lista").innerHTML = doDia.map(i => {
     const opc = SITUACOES.map(([v, t]) => `<option value="${v}"${v === i.status ? " selected" : ""}>${t}</option>`).join("");
     const tel = i.telefone.length <= 11 ? "55" + i.telefone : i.telefone;
     const d = dataDe(i.dia);
-    const texto = `Olá, ${i.nome}! Aqui é da Barbearia AOMETO. Confirmando seu horário: ${DIAS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${i.hora}, com ${i.barbeiro}.`;
+    const novo = i.status === "pendente";
+    const texto = novo ? `Olá, ${i.nome}! Aqui é da Barbearia AOMETO. Confirmando seu horário: ${DIAS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${i.hora}, com ${i.barbeiro}.`
+                       : `Olá, ${i.nome}! Aqui é da Barbearia AOMETO.`;
     return `<article class="horario ${i.status}" data-id="${i.id}">
       <div class="h">${i.hora}</div>
       <div><div class="quem">${esc(i.nome)}</div><div class="det">${esc(i.servico)}, com ${esc(i.barbeiro)}</div>
         ${i.obs ? `<div class="obs">Obs.: ${esc(i.obs)}</div>` : ""}</div>
-      <div class="lado"><label class="sr" style="font-weight:400"><span style="position:absolute;left:-9999px">Situação</span>
+      <div class="lado"><label style="font-size:13px;gap:2px">Situação
         <select class="situacao" aria-label="Situação de ${esc(i.nome)} às ${i.hora}">${opc}</select></label>
-        <a class="zap" target="_blank" rel="noopener" href="https://wa.me/${tel}?text=${encodeURIComponent(texto)}">Chamar no WhatsApp</a></div>
+        <a class="zap" target="_blank" rel="noopener" href="https://wa.me/${tel}?text=${encodeURIComponent(texto)}">${novo ? "Confirmar pelo WhatsApp" : "Chamar no WhatsApp"}</a></div>
     </article>`;
   }).join("");
 }
@@ -266,7 +270,7 @@ $("#lista").addEventListener("change", async e => {
   const card = sel.closest(".horario"), id = card.dataset.id, item = itensSemana.find(i => i.id === id), antes = item.status;
   sel.disabled = true;
   let r; try { r = await rpc("barbearia_mudar_status", {p_token: token, p_id: id, p_status: sel.value}); } catch (err) { r = {ok: false, erro: "rede"}; }
-  if (r.ok) { item.status = sel.value; desenhar(); return; }
+  if (r.ok) { item.status = sel.value; desenhar(); alertaLista("Salvo.", true); return; }
   sel.value = antes; sel.disabled = false;
   if (r.erro === "sessao") return mostrarEntrada("Sua sessão acabou. Entre de novo.");
   alertaLista(r.erro === "ocupado" ? "Esse horário já foi ocupado por outro cliente, por isso não dá para reativar." : FALHA);
