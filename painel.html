@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Agenda | Barbearia AOMETO</title>
+<title>Agenda | Barbearia Comando Social</title>
+<link rel="icon" type="image/png" href="logo-comando-social.png">
 <meta name="theme-color" content="#0d3267">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -82,7 +83,7 @@ dialog h2{font-size:30px}
 <!-- entrada -->
 <main class="entrada" id="tela-entrar" hidden>
   <h1>Agenda</h1>
-  <p class="sub">Barbearia AOMETO. Área dos funcionários.</p>
+  <p class="sub">Barbearia Comando Social. Área dos funcionários.</p>
   <form class="cartao" id="form-entrar">
     <label>Usuário<input id="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="dica-usuario"></label>
     <p class="legenda" id="dica-usuario" style="margin-top:-8px">Use o usuário que o responsável te passou.</p>
@@ -107,7 +108,7 @@ dialog h2{font-size:30px}
 <div id="tela-agenda" hidden>
   <header class="topo">
     <div class="largura">
-      <b>Barbearia AOMETO</b>
+      <b>Barbearia Comando Social</b>
       <div class="acoes"><button type="button" id="abrir-senha">Trocar senha</button><button type="button" id="sair">Sair</button></div>
     </div>
   </header>
@@ -260,8 +261,8 @@ function desenhar() {
     const tel = i.telefone.length <= 11 ? "55" + i.telefone : i.telefone;
     const d = dataDe(i.dia);
     const novo = i.status === "pendente";
-    const texto = novo ? `Olá, ${i.nome}! Aqui é da Barbearia AOMETO. Confirmando seu horário: ${DIAS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${i.hora}, com ${i.barbeiro}.`
-                       : `Olá, ${i.nome}! Aqui é da Barbearia AOMETO.`;
+    const texto = novo ? `Olá, ${i.nome}! Aqui é da Barbearia Comando Social. Confirmando seu horário: ${DIAS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${i.hora}, com ${i.barbeiro}.`
+                       : `Olá, ${i.nome}! Aqui é da Barbearia Comando Social.`;
     return `<article class="horario ${i.status}" data-id="${i.id}">
       <div class="h">${i.hora}</div>
       <div><div class="quem">${esc(i.nome)}</div><div class="det">${esc(i.servico)}, com ${esc(i.barbeiro)}</div>

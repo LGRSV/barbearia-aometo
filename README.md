@@ -1,6 +1,6 @@
-# Barbearia AOMETO
+# Barbearia Comando Social
 
-Site da barbearia do clube da AOMETO (Associação dos Oficiais Militares Estaduais do Tocantins), em Palmas.
+Site da Barbearia Comando Social, no clube da AOMETO (Associação dos Oficiais Militares Estaduais do Tocantins), em Palmas.
 
 Página única em HTML, sem dependências: abrir `index.html` no navegador.
 

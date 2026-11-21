@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Barbearia AOMETO | Clube dos Oficiais, Palmas</title>
-<meta name="description" content="Barbearia do clube da AOMETO, em Palmas. Corte, barba e plano mensal. Marque seu horário pelo site.">
+<title>Barbearia Comando Social | Clube da AOMETO, Palmas</title>
+<meta name="description" content="Barbearia Comando Social, no clube da AOMETO, em Palmas. Corte, barba e plano mensal. Marque seu horário pelo site.">
+<link rel="icon" type="image/png" href="logo-comando-social.png">
 <meta name="theme-color" content="#0d3267">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +43,8 @@ h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:800;l
 /* ---------- barra ---------- */
 .barra{position:sticky;top:0;z-index:30;background:var(--branco);border-bottom:1px solid var(--aco)}
 .barra .largura{display:flex;align-items:center;justify-content:space-between;height:62px}
-.logo{font-family:"Big Shoulders Display";font-weight:900;font-size:23px;text-decoration:none;color:var(--marinho);letter-spacing:.01em}
+.logo{font-family:"Big Shoulders Display";font-weight:900;font-size:23px;text-decoration:none;color:var(--marinho);letter-spacing:.01em;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo img{width:36px;height:36px;border-radius:50%}
 .barra nav{display:flex;align-items:center;gap:26px;font-size:15px}
 .barra nav a{text-decoration:none;color:var(--tinta)}
 .barra nav a:hover{color:var(--marinho);text-decoration:underline;text-underline-offset:4px}
@@ -66,8 +68,8 @@ h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:800;l
 .conteiner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:var(--branco);box-shadow:0 -4px 0 var(--marinho-escuro)}
 .conteiner .largura{position:relative;padding:86px 20px 78px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:40px;align-items:end}
 @media (max-width:820px){.conteiner .largura{grid-template-columns:1fr;padding:64px 20px 58px}}
-.brasao{display:inline-block;background:var(--branco);padding:12px 16px;border-radius:3px}
-.brasao img{display:block;height:54px;width:auto}
+.selo{display:block;width:150px;height:150px;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.85),0 10px 28px rgba(0,0,0,.35)}
+@media (max-width:820px){.selo{width:120px;height:120px}}
 .conteiner h1{font-size:clamp(64px,11vw,132px);margin-top:26px;font-weight:900}
 .conteiner p{font-size:clamp(18px,2.2vw,20px);max-width:34em;color:#e3e9f2;margin-top:18px}
 .conteiner .acoes{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px;align-items:center}
@@ -144,6 +146,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--marinho);outline:2px 
 footer{background:var(--marinho-escuro);color:#c7d1e0;padding:34px 0 100px;font-size:15px}
 footer .largura{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
 footer a{color:#fff}
+footer .credito{display:inline-block;margin-top:10px;font-size:13px;color:#9fb0c8}
 
 /* ---------- chat ---------- */
 .chamar{position:fixed;right:18px;bottom:18px;z-index:40;display:flex;align-items:center;gap:10px;background:var(--marinho);color:#fff;border:0;border-radius:28px;padding:12px 18px 12px 14px;font:600 15px Archivo,sans-serif;cursor:pointer;box-shadow:0 6px 18px rgba(12,29,56,.35)}
@@ -171,7 +174,7 @@ footer a{color:#fff}
 
 <header class="barra">
   <div class="largura">
-    <a class="logo" href="#">Barbearia AOMETO</a>
+    <a class="logo" href="#"><img src="logo-comando-social.png" alt="" width="36" height="36"><span>Comando Social</span></a>
     <nav aria-label="Seções">
       <a class="some" href="#precos">Preços</a>
       <a class="some" href="#plano">Plano mensal</a>
@@ -184,8 +187,8 @@ footer a{color:#fff}
 <section class="conteiner" style="padding:0">
   <div class="largura">
     <div>
-      <span class="brasao"><img src="https://aometo.com.br/media/aometo/uploads/imagens/aometo_logo_oficial_2026_-_horizontal.png" alt="AOMETO, Associação dos Oficiais Militares do Estado do Tocantins"></span>
-      <h1>Barbearia AOMETO</h1>
+      <img class="selo" src="logo-comando-social.png" alt="Logo da Barbearia Comando Social" width="150" height="150">
+      <h1>Barbearia Comando Social</h1>
       <p>Corte e barba no clube da Associação dos Oficiais, em Palmas. Escolha um horário livre e ele fica reservado na hora.</p>
       <div class="acoes">
         <a class="botao botao-claro" href="#marcar">Marcar horário</a>
@@ -266,7 +269,7 @@ footer a{color:#fff}
 
 <footer>
   <div class="largura">
-    <span>Barbearia AOMETO, no clube da Associação dos Oficiais Militares do Estado do Tocantins. ALCSO 34, Lote 14, Palmas. <a href="https://aometo.com.br" target="_blank" rel="noopener">aometo.com.br</a></span>
+    <span>Barbearia Comando Social, no clube da Associação dos Oficiais Militares do Estado do Tocantins. ALCSO 34, Lote 14, Palmas. <a href="https://aometo.com.br" target="_blank" rel="noopener">aometo.com.br</a><br><small class="credito">Criado pela empresa Puça Soluções</small></span>
     <span><a id="zap-rodape" target="_blank" rel="noopener">Falar no WhatsApp</a> &nbsp; <a href="painel.html">Área do funcionário</a></span>
   </div>
 </footer>
@@ -275,8 +278,8 @@ footer a{color:#fff}
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>
   Dúvidas
 </button>
-<div class="chat" id="chat" role="dialog" aria-label="Dúvidas sobre a Barbearia AOMETO" hidden>
-  <header><div><b>Barbearia AOMETO</b><small>Respostas automáticas. Para falar com o barbeiro, toque em atendente.</small></div><button id="chat-fechar" type="button">Fechar</button></header>
+<div class="chat" id="chat" role="dialog" aria-label="Dúvidas sobre a Barbearia Comando Social" hidden>
+  <header><div><b>Barbearia Comando Social</b><small>Respostas automáticas. Para falar com o barbeiro, toque em atendente.</small></div><button id="chat-fechar" type="button">Fechar</button></header>
   <div class="conversa" id="conversa" aria-live="polite"></div>
   <div class="sugestoes" id="sugestoes"></div>
   <form class="escrever" id="escrever"><input id="pergunta" placeholder="Digite sua pergunta" autocomplete="off" aria-label="Sua pergunta"><button>Enviar</button></form>
