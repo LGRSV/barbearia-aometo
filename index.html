@@ -199,7 +199,7 @@ footer a{color:#fff}
   <div class="largura">
     <div>
       <h2 class="titulo-secao">Plano mensal</h2>
-      <p class="intro">Para quem corta com frequência. Você paga uma vez por mês e marca quando quiser.</p>
+      <p class="intro">Para quem gosta do cabelo sempre em dia. Você paga uma vez por mês e corta quantas vezes quiser.</p>
       <ul id="beneficios"></ul>
     </div>
     <div class="recibo">
@@ -272,24 +272,24 @@ footer a{color:#fff}
 <script>
 /* ============ O QUE A BARBEARIA MUDA FICA AQUI ============
    preco: número em reais, ou null para mostrar "consulte".
-   Itens com "a confirmar" ainda precisam ser conferidos com o Alan. */
+*/
 const CONFIG = {
   whatsapp: "5563981267002",
-  endereco: "Clube da AOMETO, ALCSO 34, Lote 14, Palmas-TO",   // endereço da sede (aometo.com.br); confirmar se a barbearia fica no clube
+  endereco: "Clube da AOMETO, ALCSO 34, Lote 14, Palmas-TO",   // sede e clube da AOMETO
   mapa: "https://www.google.com/maps/search/?api=1&query=AOMETO%20ALCSO%2034%20Lote%2014%20Palmas%20TO",
   equipe: ["Alan", "Marcos"],
   servicos: [
-    {nome: "Corte", desc: "Tesoura ou máquina, do social ao degradê, com acabamento na navalha.", preco: null, min: 40},
-    {nome: "Barba", desc: "Toalha quente, desenho e navalha.", preco: null, min: 30},
-    {nome: "Corte e barba", desc: "Os dois no mesmo horário.", preco: null, min: 60},
-    {nome: "Pezinho", desc: "Contorno e nuca entre um corte e outro.", preco: null, min: 15},
-    {nome: "Sobrancelha", desc: "Alinhamento na navalha.", preco: null, min: 10}
+    {nome: "Corte", desc: "Tesoura ou máquina, do social ao degradê, com acabamento na navalha.", preco: 30, min: 40},
+    {nome: "Barba", desc: "Toalha quente, desenho e navalha.", preco: 25, min: 30},
+    {nome: "Corte e barba", desc: "Os dois no mesmo horário.", preco: 50, min: 60},
+    {nome: "Pezinho", desc: "Contorno e nuca entre um corte e outro.", preco: 10, min: 15},
+    {nome: "Sobrancelha", desc: "Alinhamento na navalha.", preco: 10, min: 10}
   ],
-  plano: {valor: 100, beneficios: ["Cortes durante o mês, é só marcar", "Prioridade na agenda", "Pagamento mensal por Pix", "Sem fidelidade"],
-          obs: "Valor e regras do plano a confirmar com a barbearia."},
+  plano: {valor: 100, beneficios: ["Cortes de cabelo ilimitados no mês", "Vale só para o corte de cabelo; barba e outros serviços são à parte", "Prioridade na agenda", "Pagamento mensal por Pix, sem fidelidade"],
+          obs: "Corte de cabelo à vontade durante o mês. É só marcar o horário."},
   horarios: {Segunda: ["09:00","19:00"], "Terça": ["09:00","19:00"], Quarta: ["09:00","19:00"], Quinta: ["09:00","19:00"],
              Sexta: ["09:00","19:00"], "Sábado": ["08:00","17:00"], Domingo: null},
-  horarioObs: "Horários a confirmar. Na dúvida, chame no WhatsApp antes de ir."
+  horarioObs: "Em feriados o horário pode mudar. Na dúvida, chame no WhatsApp antes de ir."
 };
 /* ========================================================== */
 
