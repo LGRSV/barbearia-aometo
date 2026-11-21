@@ -95,6 +95,7 @@ section{padding:84px 0}
 .item .preco strong{display:block;font-family:"Big Shoulders Display";font-weight:800;font-size:30px;color:var(--tinta)}
 .item .preco button{background:none;border:0;color:var(--marinho);font:600 15px Archivo,sans-serif;text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:4px 0}
 .nota{font-size:14px;color:#5d6b80;margin-top:14px}
+.item .preco small.outros{display:block;font-size:13px;line-height:1.35;color:#5d6b80;margin:2px 0 4px}
 
 /* plano mensal */
 .plano{background:var(--nevoa)}
@@ -198,7 +199,7 @@ footer a{color:#fff}
 <section id="precos">
   <div class="largura">
     <h2 class="titulo-secao">Preços</h2>
-    <p class="intro">Escolha o serviço e toque em marcar. Ele já vai preenchido no pedido de horário.</p>
+    <p class="intro">Valores para sócio da AOMETO e dependentes. Sócio da AABB paga R$ 5 a mais e quem não é sócio, R$ 10 a mais.</p>
     <div class="cardapio" id="cardapio"></div>
     <p class="nota" id="nota-precos"></p>
   </div>
@@ -228,6 +229,7 @@ footer a{color:#fff}
         <label>Seu nome<input id="nome" autocomplete="name" placeholder="Como devemos te chamar"></label>
         <label>Seu WhatsApp<input id="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(63) 99999-9999"></label>
         <p class="alerta" id="erro-dados" role="alert"></p>
+        <label>Você é<select id="categoria"></select></label>
         <label>Serviço<select id="servico"></select></label>
         <label>Barbeiro<select id="barbeiro"></select></label>
         <label>Dia<input type="date" id="dia"></label>
@@ -291,11 +293,16 @@ const CONFIG = {
   equipe: ["Funcionário X", "Funcionário Y"],   // mesmos nomes da tabela barbearia_barbeiros
   agenda: {url: "https://uabpevnjfcwidbjscowq.supabase.co", chave: "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh"},
   servicos: [
-    {nome: "Corte", desc: "Tesoura ou máquina, do social ao degradê, com acabamento na navalha.", preco: 30, min: 40},
-    {nome: "Barba", desc: "Toalha quente, desenho e navalha.", preco: 25, min: 30},
-    {nome: "Corte e barba", desc: "Os dois no mesmo horário.", preco: 50, min: 60},
-    {nome: "Pezinho", desc: "Contorno e nuca entre um corte e outro.", preco: 10, min: 15},
-    {nome: "Sobrancelha", desc: "Alinhamento na navalha.", preco: 10, min: 10}
+    {nome: "Corte", desc: "Tesoura ou máquina, do social ao degradê.", preco: 40, min: 40},
+    {nome: "Barba", desc: "Toalha quente, desenho e navalha.", preco: 40, min: 30},
+    {nome: "Corte e barba", desc: "Os dois no mesmo horário.", preco: 70, min: 60},
+    {nome: "Acabamento", desc: "Pezinho e contorno entre um corte e outro.", preco: 10, min: 15}
+  ],
+  // preço da tabela = sócio da AOMETO e dependentes; os outros pagam um adicional
+  categorias: [
+    {id: "aometo", nome: "Sócio da AOMETO ou dependente", sufixo: "", mais: 0},
+    {id: "aabb", nome: "Sócio da AABB", sufixo: " (sócio AABB)", mais: 5},
+    {id: "outro", nome: "Não sou sócio", sufixo: " (não sócio)", mais: 10}
   ],
   plano: {valor: 100, beneficios: ["Cortes de cabelo ilimitados no mês", "Pagamento mensal por Pix", "Sem fidelidade"],
           obs: "Só o corte de cabelo. Barba e outros serviços são cobrados à parte."},
@@ -325,9 +332,9 @@ $("#cardapio").innerHTML = CONFIG.servicos.map((s, i) => `
   <div class="item">
     <h3>${s.nome}${s.min ? `<span class="tempo">cerca de ${s.min} min</span>` : ""}</h3>
     <p>${s.desc}</p>
-    <div class="preco"><strong>${preco(s.preco)}</strong><button type="button" class="marcar" data-i="${i}">Marcar</button></div>
+    <div class="preco"><strong>${preco(s.preco)}</strong><small class="outros">AABB R$ ${s.preco + 5}<br>Não sócio R$ ${s.preco + 10}</small><button type="button" class="marcar" data-i="${i}">Marcar</button></div>
   </div>`).join("");
-$("#nota-precos").textContent = CONFIG.servicos.some(s => s.preco == null) ? "Onde está \"consulte\", o barbeiro informa o valor pelo WhatsApp." : "";
+$("#nota-precos").textContent = "Dependentes: filhos, irmãos e parentes do sócio da AOMETO.";
 $("#cardapio").addEventListener("click", e => {
   const b = e.target.closest(".marcar"); if (!b) return;
   $("#servico").selectedIndex = +b.dataset.i;
@@ -382,7 +389,10 @@ async function montarHoras() {
 }
 dia.addEventListener("change", montarHoras); $("#barbeiro").addEventListener("change", montarHoras); montarHoras();
 
-const precoDe = nome => (CONFIG.servicos.find(s => s.nome === nome) || {}).preco || 0;
+const cat = () => CONFIG.categorias.find(c => c.id === $("#categoria").value) || CONFIG.categorias[0];
+const precoDe = nome => { const s = CONFIG.servicos.find(x => x.nome === nome); return s ? s.preco + cat().mais : 0; };
+const servicoCompleto = () => { const s = $("#servico").value; return CONFIG.servicos.some(x => x.nome === s) ? s + cat().sufixo : s; };
+$("#categoria").innerHTML = CONFIG.categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
 const ERROS = {
   nome: "Escreva seu nome para o barbeiro saber quem vai.",
   telefone: "Confira seu WhatsApp com DDD, por exemplo (63) 99999-9999.",
@@ -404,7 +414,7 @@ $("#form").addEventListener("submit", async e => {
   const botao = $("#reservar"); botao.disabled = true; botao.textContent = "Reservando..."; aviso.textContent = "";
   let r;
   try {
-    r = await rpc("barbearia_pedir", {p_nome: nome, p_telefone: tel, p_servico: $("#servico").value, p_barbeiro: $("#barbeiro").value,
+    r = await rpc("barbearia_pedir", {p_nome: nome, p_telefone: tel, p_servico: servicoCompleto(), p_barbeiro: $("#barbeiro").value,
                                        p_dia: dia.value, p_hora: hora.value, p_obs: $("#obs").value.trim() || null});
   } catch (err) { r = {ok: false, erro: "rede"}; }
   botao.disabled = false; botao.textContent = "Reservar horário";
@@ -418,14 +428,14 @@ $("#form").addEventListener("submit", async e => {
   const quando = `${DIAS[d.getDay()].toLowerCase()}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${hora.value}`;
   const barb = r.ok ? r.barbeiro : $("#barbeiro").value;
   const msg = [r.ok ? "Olá! Reservei um horário pelo site." : "Olá! Quero marcar um horário.", "",
-    "Nome: " + nome, "Serviço: " + $("#servico").value, "Barbeiro: " + barb, "Dia: " + quando];
+    "Nome: " + nome, "Serviço: " + servicoCompleto() + (precoDe($("#servico").value) ? ", R$ " + precoDe($("#servico").value) : ""), "Barbeiro: " + barb, "Dia: " + quando];
   if ($("#obs").value.trim()) msg.push("Observação: " + $("#obs").value.trim());
   const box = $("#feito");
   box.innerHTML = (r.ok
     ? `<h3>Horário reservado</h3><p>Pronto, ${esc(nome)}. Seu horário está guardado: <b>${quando}</b>, com ${esc(barb)}.</p>
        <p>Você pode pagar agora pelo site ou na barbearia, no dia. O barbeiro pode te chamar no WhatsApp para confirmar.</p>`
     : `<h3>Não deu para reservar pelo site</h3><p>A conexão falhou. Mande o pedido pelo WhatsApp e o barbeiro marca para você.</p>`)
-    + (r.ok && precoDe($("#servico").value) ? `<a class="botao botao-escuro" id="pagar-agora" href="checkout.html?${new URLSearchParams({id: r.id, servico: $("#servico").value, dia: dia.value, hora: hora.value, barbeiro: barb, nome})}">Pagar agora: R$ ${precoDe($("#servico").value)} (Pix ou cartão)</a>` : "")
+    + (r.ok && precoDe($("#servico").value) ? `<a class="botao botao-escuro" id="pagar-agora" href="checkout.html?${new URLSearchParams({id: r.id, servico: servicoCompleto(), dia: dia.value, hora: hora.value, barbeiro: barb, nome})}">Pagar agora: R$ ${precoDe($("#servico").value)} (Pix ou cartão)</a>` : "")
     + `<a class="botao botao-zap" id="enviar-zap" target="_blank" rel="noopener" href="${zap(msg.join("\n"))}">${r.ok ? "Avisar no WhatsApp (opcional)" : "Mandar pedido no WhatsApp"}</a>
        <button type="button" class="link" id="outro">Marcar outro horário</button>`;
   $("#form").hidden = true; box.hidden = false; box.focus({preventScroll: true}); box.scrollIntoView({block: "start"});
@@ -452,7 +462,7 @@ function diz(html, quem) { const m = document.createElement("div"); m.className 
 function responde(t) {
   const q = t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   if (/agend|marc|vaga|reserv/.test(q)) return `Use o <a href="#marcar" onclick="fechar()">pedido de horário</a>: você vê os horários livres e reserva na hora. Se preferir conversar direto:<br>` + atendentes();
-  if (/preco|valor|quanto|custa/.test(q)) return CONFIG.servicos.map(s => s.nome + ": " + preco(s.preco)).join("\n") + (CONFIG.servicos.some(s => s.preco == null) ? "\n\nOnde está \"consulte\", o barbeiro passa o valor no WhatsApp." : "");
+  if (/preco|valor|quanto|custa/.test(q)) return "Sócio da AOMETO e dependentes:\n" + CONFIG.servicos.map(s => s.nome + ": " + preco(s.preco)).join("\n") + "\n\nSócio da AABB paga R$ 5 a mais. Quem não é sócio paga R$ 10 a mais.";
   if (/hora|abre|fecha|funcion|domingo|sabado|aberto/.test(q)) return SEMANA.map(d => { const h = CONFIG.horarios[d]; return d + ": " + (h ? h[0] + " às " + h[1] : "fechado"); }).join("\n") + "\n\n" + CONFIG.horarioObs;
   if (/onde|endereco|local|fica|mapa|chegar/.test(q)) return CONFIG.endereco ? "Ficamos em " + CONFIG.endereco + "." + (CONFIG.mapa ? "\n" + link(CONFIG.mapa, "Abrir no Google Maps") : "") : "O endereço ainda não está no site. " + link(zap("Olá! Pode me mandar a localização da barbearia?"), "Pedir a localização pelo WhatsApp");
   if (/plano|assinat|mensal/.test(q)) return (CONFIG.plano.valor ? "O plano custa R$ " + CONFIG.plano.valor + " por mês." : "") + "\n" + CONFIG.plano.beneficios.join("\n") + "\n\n" + link("checkout.html?plano=1", "Assinar o plano");

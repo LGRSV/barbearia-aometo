@@ -144,7 +144,11 @@ dialog h2{font-size:30px}
 <script>
 const AGENDA = {url: "https://uabpevnjfcwidbjscowq.supabase.co", chave: "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh"};
 const EQUIPE = ["Funcionário X", "Funcionário Y"];
-const PRECOS = {"Corte": 30, "Barba": 25, "Corte e barba": 50, "Pezinho": 10, "Sobrancelha": 10, "Corte (sou do plano mensal)": 0, "Plano mensal": 0};
+const BASE = {"Corte": 40, "Barba": 40, "Corte e barba": 70, "Acabamento": 10};
+const precoServico = s => {   // "Corte" = sócio AOMETO; "Corte (sócio AABB)" = +5; "Corte (não sócio)" = +10
+  const m = /^(.*?) \((sócio AABB|não sócio)\)$/.exec(s || ""), base = m ? m[1] : s, v = BASE[base];
+  return v == null ? 0 : v + (m ? (m[2] === "sócio AABB" ? 5 : 10) : 0);
+};
 const SITUACOES = [["pendente", "Novo"], ["confirmado", "Confirmado"], ["feito", "Feito"], ["faltou", "Cliente faltou"], ["cancelado", "Cancelado"]];
 const DIAS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
 
@@ -244,12 +248,12 @@ function desenhar() {
   const doDia = itensSemana.filter(i => i.dia === diaAtual && doFiltro(i));
   const marcados = doDia.filter(ativos), feitos = doDia.filter(i => i.status === "feito");
   const novos = doDia.filter(i => i.status === "pendente");
-  const valor = feitos.reduce((t, i) => t + (PRECOS[i.servico] || 0), 0);
+  const valor = feitos.reduce((t, i) => t + precoServico(i.servico), 0);
   const pl = (n, um, varios) => `<div><b>${n}</b>${n === 1 ? um : varios}</div>`;
   $("#resumo").innerHTML = pl(marcados.length, "marcado", "marcados") + pl(novos.length, "novo", "novos") +
     pl(feitos.length, "feito", "feitos") + `<div><b>R$ ${valor}</b>em serviços feitos (pela tabela)</div>` +
     `<div><b>R$ ${doDia.filter(i => i.pagamento === "pago" && i.status !== "cancelado").reduce((t, i) => t + Number(i.pagamento_valor), 0)}</b>já pago pelo site</div>` +
-    `<div><b>R$ ${marcados.filter(i => i.pagamento !== "pago" && i.status !== "faltou" && i.status !== "feito").reduce((t, i) => t + (PRECOS[i.servico] || 0), 0)}</b>a cobrar na barbearia</div>`;
+    `<div><b>R$ ${marcados.filter(i => i.pagamento !== "pago" && i.status !== "faltou" && i.status !== "feito").reduce((t, i) => t + precoServico(i.servico), 0)}</b>a cobrar na barbearia</div>`;
   if (!doDia.length) { $("#lista").innerHTML = '<p class="vazio">Nenhum horário marcado nesse dia.</p>'; return; }
   $("#lista").innerHTML = doDia.map(i => {
     const opc = SITUACOES.map(([v, t]) => `<option value="${v}"${v === i.status ? " selected" : ""}>${t}</option>`).join("");
@@ -261,7 +265,7 @@ function desenhar() {
     return `<article class="horario ${i.status}" data-id="${i.id}">
       <div class="h">${i.hora}</div>
       <div><div class="quem">${esc(i.nome)}</div><div class="det">${esc(i.servico)}, com ${esc(i.barbeiro)}</div>
-        ${i.pagamento === "pago" ? `<span class="pago">Pago pelo site: R$ ${Number(i.pagamento_valor).toFixed(0)} (${i.pagamento_forma === "pix" ? "Pix" : "cartão"})</span>` : i.status === "cancelado" ? "" : `<span class="pago nao">${PRECOS[i.servico] ? "Cobrar na barbearia: R$ " + PRECOS[i.servico] : "Plano mensal: sem cobrança"}</span>`}
+        ${i.pagamento === "pago" ? `<span class="pago">Pago pelo site: R$ ${Number(i.pagamento_valor).toFixed(0)} (${i.pagamento_forma === "pix" ? "Pix" : "cartão"})</span>` : i.status === "cancelado" ? "" : `<span class="pago nao">${precoServico(i.servico) ? "Cobrar na barbearia: R$ " + precoServico(i.servico) : "Plano mensal: sem cobrança"}</span>`}
         ${i.obs ? `<div class="obs">Obs.: ${esc(i.obs)}</div>` : ""}</div>
       <div class="lado"><label style="font-size:13px;gap:2px">Situação
         <select class="situacao" aria-label="Situação de ${esc(i.nome)} às ${i.hora}">${opc}</select></label>

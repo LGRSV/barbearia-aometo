@@ -125,7 +125,11 @@ input.texto{font:16px Archivo,sans-serif;border:1px solid #9aa5b5;border-radius:
 <script>
 const AGENDA = {url: "https://uabpevnjfcwidbjscowq.supabase.co", chave: "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh"};
 const WHATSAPP = "5563992394176";
-const PRECOS = {"Corte": 30, "Barba": 25, "Corte e barba": 50, "Pezinho": 10, "Sobrancelha": 10};
+const BASE = {"Corte": 40, "Barba": 40, "Corte e barba": 70, "Acabamento": 10};
+const precoServico = s => {   // "Corte" = sócio AOMETO; "Corte (sócio AABB)" = +5; "Corte (não sócio)" = +10
+  const m = /^(.*?) \((sócio AABB|não sócio)\)$/.exec(s || ""), base = m ? m[1] : s, v = BASE[base];
+  return v == null ? 0 : v + (m ? (m[2] === "sócio AABB" ? 5 : 10) : 0);
+};
 const PLANO = 100;
 const DIAS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
 const $ = s => document.querySelector(s);
@@ -135,7 +139,7 @@ const reais = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2})
 const q = new URLSearchParams(location.search);
 const plano = q.has("plano");
 const pedido = {id: q.get("id"), servico: q.get("servico"), dia: q.get("dia"), hora: q.get("hora"), barbeiro: q.get("barbeiro"), nome: q.get("nome")};
-const valor = plano ? PLANO : PRECOS[pedido.servico];
+const valor = plano ? PLANO : precoServico(pedido.servico);
 
 async function rpc(nome, dados) {
   const r = await fetch(AGENDA.url + "/rest/v1/rpc/" + nome, {method: "POST",
