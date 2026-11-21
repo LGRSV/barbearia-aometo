@@ -6,12 +6,14 @@ Página única em HTML, sem dependências: abrir `index.html` no navegador.
 
 ## O que faz
 - Tabela de preços com botão para marcar o serviço
-- Pedido de horário que abre o WhatsApp da barbearia com a mensagem pronta
+- Reserva de horário: o cliente vê só os horários livres e a reserva entra na agenda na hora (Supabase)
+- Painel dos funcionários (`painel.html`): login, agenda do dia, próximos 7 dias, situação de cada horário e total recebido
 - Plano mensal
 - Chat de dúvidas com respostas automáticas e passagem para o barbeiro
 
 ## Onde mudar os dados
-Tudo fica no bloco `CONFIG`, no começo do `<script>` em `index.html`: WhatsApp, endereço, mapa, barbeiros,
+A agenda fica no Supabase (tabelas `barbearia_*`, acessadas só por funções; sem login ninguém lê os dados).
+Tudo do site fica no bloco `CONFIG`, no começo do `<script>` em `index.html`: WhatsApp, endereço, mapa, barbeiros,
 serviços e preços (`null` mostra "consulte"), plano e horários.
 
 ## No ar

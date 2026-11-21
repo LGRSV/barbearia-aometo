@@ -29,6 +29,8 @@
   --zap:#1fa855;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+section[id],.feito{scroll-margin-top:76px}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{background:var(--branco);color:var(--tinta);font:17px/1.6 Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -120,6 +122,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--marinho);outline:2px 
 .horas button{border:1px solid #9aa5b5;background:var(--branco);color:var(--tinta);border-radius:4px;padding:8px 11px;font:500 15px Archivo,sans-serif;cursor:pointer}
 .horas button[aria-pressed="true"]{background:var(--marinho);border-color:var(--marinho);color:#fff}
 .horas .vazio{font-size:14px;color:#5d6b80}
+.horas button:disabled{background:var(--nevoa);color:#8b96a8;border-color:var(--aco);text-decoration:line-through;cursor:not-allowed}
+.rotulo{font-weight:600;font-size:15px;margin-bottom:8px}
+.rotulo small{font-weight:400;color:#5d6b80}
+.feito{margin-top:28px;border:2px solid var(--marinho);padding:24px;display:grid;gap:12px;justify-items:start}
+.feito:focus{outline:none}
+.feito h3{font-size:36px;color:var(--marinho)}
+.link{background:none;border:0;color:var(--marinho);font:600 15px Archivo,sans-serif;text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:8px 0}
 .alerta{font-size:15px;color:#9b2c2c;min-height:1em}
 .ajuda{font-size:14px;color:#5d6b80}
 
@@ -176,7 +185,7 @@ footer a{color:#fff}
     <div>
       <span class="brasao"><img src="https://aometo.com.br/media/aometo/uploads/imagens/aometo_logo_oficial_2026_-_horizontal.png" alt="AOMETO, Associação dos Oficiais Militares do Estado do Tocantins"></span>
       <h1>Barbearia AOMETO</h1>
-      <p>Corte e barba no clube da Associação dos Oficiais, em Palmas. Escolha o serviço e o horário aqui; a confirmação chega pelo WhatsApp.</p>
+      <p>Corte e barba no clube da Associação dos Oficiais, em Palmas. Escolha um horário livre e ele fica reservado na hora.</p>
       <div class="acoes">
         <a class="botao botao-claro" href="#marcar">Marcar horário</a>
         <a class="texto" href="#precos">Ver preços</a>
@@ -214,23 +223,23 @@ footer a{color:#fff}
   <div class="largura">
     <div>
       <h2 class="titulo-secao">Marque seu horário</h2>
-      <p class="intro">Preencha e envie. O WhatsApp da barbearia abre com o pedido pronto, e o barbeiro confirma por lá.</p>
+      <p class="intro">Escolha o dia e um horário livre. O horário fica reservado assim que você toca em reservar.</p>
       <form id="form" novalidate>
         <label>Seu nome<input id="nome" autocomplete="name" placeholder="Como devemos te chamar"></label>
+        <label>Seu WhatsApp<input id="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(63) 99999-9999"></label>
         <label>Serviço<select id="servico"></select></label>
         <label>Barbeiro<select id="barbeiro"></select></label>
-        <div class="par">
-          <label>Dia<input type="date" id="dia"></label>
-          <label>Horário<input type="time" id="hora" step="900"></label>
-        </div>
+        <label>Dia<input type="date" id="dia"></label>
         <div>
-          <p class="ajuda" style="margin-bottom:8px">Horários do dia escolhido</p>
-          <div class="horas" id="horas" role="group" aria-label="Horários"></div>
+          <p class="rotulo">Horário <small>os riscados já estão ocupados</small></p>
+          <div class="horas" id="horas" role="group" aria-label="Horários livres"></div>
+          <input type="hidden" id="hora">
         </div>
         <label>Observação <small>opcional</small><textarea id="obs" rows="2" placeholder="Por exemplo: degradê baixo, barba só alinhar"></textarea></label>
         <p class="alerta" id="aviso-dia" role="alert"></p>
-        <button class="botao botao-zap" type="submit">Enviar pedido pelo WhatsApp</button>
+        <button class="botao botao-escuro" type="submit" id="reservar">Reservar horário</button>
       </form>
+      <div class="feito" id="feito" role="status" tabindex="-1" hidden></div>
     </div>
     <aside>
       <div class="ficha">
@@ -254,7 +263,7 @@ footer a{color:#fff}
 <footer>
   <div class="largura">
     <span>Barbearia AOMETO, no clube da Associação dos Oficiais Militares do Estado do Tocantins. ALCSO 34, Lote 14, Palmas. <a href="https://aometo.com.br" target="_blank" rel="noopener">aometo.com.br</a></span>
-    <a id="zap-rodape" target="_blank" rel="noopener">Falar no WhatsApp</a>
+    <span><a id="zap-rodape" target="_blank" rel="noopener">Falar no WhatsApp</a> &nbsp; <a href="painel.html">Área do funcionário</a></span>
   </div>
 </footer>
 
@@ -277,7 +286,8 @@ const CONFIG = {
   whatsapp: "5563981267002",
   endereco: "Clube da AOMETO, ALCSO 34, Lote 14, Palmas-TO",   // sede e clube da AOMETO
   mapa: "https://www.google.com/maps/search/?api=1&query=AOMETO%20ALCSO%2034%20Lote%2014%20Palmas%20TO",
-  equipe: ["Alan", "Marcos"],
+  equipe: ["Funcionário X", "Funcionário Y"],   // mesmos nomes da tabela barbearia_barbeiros
+  agenda: {url: "https://uabpevnjfcwidbjscowq.supabase.co", chave: "sb_publishable_SHH7EV0MT5grOTdCFM-V-w_FqPrtzPh"},
   servicos: [
     {nome: "Corte", desc: "Tesoura ou máquina, do social ao degradê, com acabamento na navalha.", preco: 30, min: 40},
     {nome: "Barba", desc: "Toalha quente, desenho e navalha.", preco: 25, min: 30},
@@ -329,38 +339,89 @@ $("#plano-obs").textContent = CONFIG.plano.obs;
 $("#beneficios").innerHTML = CONFIG.plano.beneficios.map(b => `<li>${b}</li>`).join("");
 $("#assinar").href = zap("Olá! Quero saber como funciona o plano mensal.");
 
-// formulário
+// formulário: mostra os horários livres e grava a reserva na agenda
+async function rpc(nome, dados) {
+  const r = await fetch(CONFIG.agenda.url + "/rest/v1/rpc/" + nome, {method: "POST",
+    headers: {apikey: CONFIG.agenda.chave, "Content-Type": "application/json"}, body: JSON.stringify(dados)});
+  if (!r.ok) throw new Error("rede " + r.status);
+  return r.json();
+}
 $("#servico").innerHTML = CONFIG.servicos.map(s => `<option>${s.nome}</option>`).join("") + "<option>Plano mensal</option>";
 $("#barbeiro").innerHTML = "<option>Qualquer um</option>" + CONFIG.equipe.map(n => `<option>${n}</option>`).join("");
-const dia = $("#dia"), hora = $("#hora");
+const dia = $("#dia"), hora = $("#hora"), aviso = $("#aviso-dia");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 dia.min = iso(new Date());
-function montarHoras() {
-  const box = $("#horas"); box.innerHTML = ""; $("#aviso-dia").textContent = "";
-  if (!dia.value) { box.innerHTML = '<span class="vazio">Escolha o dia para ver os horários.</span>'; return; }
+{ const m = new Date(); m.setDate(m.getDate() + 60); dia.max = iso(m); }
+let rodada = 0;
+async function montarHoras() {
+  const box = $("#horas"), n = ++rodada; box.innerHTML = ""; aviso.textContent = ""; hora.value = "";
+  if (!dia.value) { box.innerHTML = '<span class="vazio">Escolha o dia para ver os horários livres.</span>'; return; }
   const d = new Date(dia.value + "T12:00"), h = CONFIG.horarios[DIAS[d.getDay()]];
-  if (!h) { $("#aviso-dia").textContent = "A barbearia não abre " + DIAS[d.getDay()].toLowerCase() + ". Escolha outro dia."; return; }
+  if (!h) { aviso.textContent = "A barbearia não abre " + DIAS[d.getDay()].toLowerCase() + ". Escolha outro dia."; return; }
+  box.innerHTML = '<span class="vazio">Procurando horários livres...</span>';
+  let ocupados = [];
+  try { ocupados = await rpc("barbearia_ocupados", {p_dia: dia.value}); } catch (e) { ocupados = []; }
+  if (n !== rodada) return;
+  box.innerHTML = "";
+  const escolhido = $("#barbeiro").value, agora = new Date();
   const [a, f] = h.map(x => +x.split(":")[0]);
+  let livres = 0;
   for (let x = a; x < f; x++) {
-    const b = document.createElement("button"); b.type = "button"; b.textContent = pad(x) + ":00"; b.setAttribute("aria-pressed", "false");
-    b.onclick = () => { hora.value = b.textContent; [...box.children].forEach(c => c.setAttribute("aria-pressed", c === b)); };
+    const hh = pad(x) + ":00", quem = ocupados.filter(o => o.hora === hh).map(o => o.barbeiro);
+    const cheio = escolhido === "Qualquer um" ? CONFIG.equipe.every(nm => quem.includes(nm)) : quem.includes(escolhido);
+    const passou = new Date(dia.value + "T" + hh) <= agora;
+    const b = document.createElement("button"); b.type = "button"; b.textContent = hh; b.setAttribute("aria-pressed", "false");
+    if (cheio || passou) { b.disabled = true; b.title = cheio ? "Ocupado" : "Esse horário já passou"; } else livres++;
+    b.onclick = () => { hora.value = hh; [...box.children].forEach(c => c.setAttribute("aria-pressed", c === b)); aviso.textContent = ""; };
     box.appendChild(b);
   }
+  if (!livres) aviso.textContent = "Não há horário livre nesse dia. Escolha outro dia" + (escolhido === "Qualquer um" ? "." : " ou outro barbeiro.");
 }
-dia.addEventListener("change", montarHoras); montarHoras();
-$("#form").addEventListener("submit", e => {
+dia.addEventListener("change", montarHoras); $("#barbeiro").addEventListener("change", montarHoras); montarHoras();
+
+const ERROS = {
+  nome: "Escreva seu nome para o barbeiro saber quem vai.",
+  telefone: "Confira seu WhatsApp com DDD, por exemplo (63) 99999-9999.",
+  horario: "Esse horário não está mais disponível. Escolha outro.",
+  ocupado: "Alguém acabou de reservar esse horário. Escolha outro.",
+  limite: "Você já tem 3 horários marcados. Para marcar mais, fale com a barbearia pelo WhatsApp.",
+  barbeiro: "Escolha o barbeiro de novo."
+};
+$("#form").addEventListener("submit", async e => {
   e.preventDefault();
-  const aviso = $("#aviso-dia");
-  if (!$("#nome").value.trim()) { aviso.textContent = "Escreva seu nome para o barbeiro saber quem vai."; $("#nome").focus(); return; }
+  const nome = $("#nome").value.trim(), tel = $("#telefone").value.replace(/\D/g, "");
+  if (nome.length < 2) { aviso.textContent = ERROS.nome; $("#nome").focus(); return; }
+  if (tel.length < 10 || tel.length > 13) { aviso.textContent = ERROS.telefone; $("#telefone").focus(); return; }
   if (!dia.value) { aviso.textContent = "Escolha o dia."; dia.focus(); return; }
   const d = new Date(dia.value + "T12:00");
   if (!CONFIG.horarios[DIAS[d.getDay()]]) { aviso.textContent = "A barbearia não abre nesse dia. Escolha outro."; return; }
-  aviso.textContent = "";
-  const linhas = ["Olá! Quero marcar um horário.", "", "Nome: " + $("#nome").value.trim(), "Serviço: " + $("#servico").value,
-    "Barbeiro: " + $("#barbeiro").value, `Dia: ${DIAS[d.getDay()].toLowerCase()}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}`,
-    "Horário: " + (hora.value || "o primeiro livre")];
-  if ($("#obs").value.trim()) linhas.push("Observação: " + $("#obs").value.trim());
-  window.open(zap(linhas.join("\n")), "_blank");
+  if (!hora.value) { aviso.textContent = "Escolha um dos horários livres."; return; }
+  const botao = $("#reservar"); botao.disabled = true; botao.textContent = "Reservando..."; aviso.textContent = "";
+  let r;
+  try {
+    r = await rpc("barbearia_pedir", {p_nome: nome, p_telefone: tel, p_servico: $("#servico").value, p_barbeiro: $("#barbeiro").value,
+                                       p_dia: dia.value, p_hora: hora.value, p_obs: $("#obs").value.trim() || null});
+  } catch (err) { r = {ok: false, erro: "rede"}; }
+  botao.disabled = false; botao.textContent = "Reservar horário";
+  if (!r.ok && r.erro !== "rede") {
+    aviso.textContent = ERROS[r.erro] || "Não foi possível reservar. Tente de novo.";
+    if (r.erro === "ocupado" || r.erro === "horario") montarHoras();
+    return;
+  }
+  const quando = `${DIAS[d.getDay()].toLowerCase()}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}, às ${hora.value}`;
+  const barb = r.ok ? r.barbeiro : $("#barbeiro").value;
+  const msg = [r.ok ? "Olá! Reservei um horário pelo site." : "Olá! Quero marcar um horário.", "",
+    "Nome: " + nome, "Serviço: " + $("#servico").value, "Barbeiro: " + barb, "Dia: " + quando];
+  if ($("#obs").value.trim()) msg.push("Observação: " + $("#obs").value.trim());
+  const box = $("#feito");
+  box.innerHTML = (r.ok
+    ? `<h3>Horário reservado</h3><p>${esc(nome)}, seu horário ficou para <b>${quando}</b>, com ${esc(barb)}. Ele já está na agenda da barbearia.</p>
+       <p>Se precisar desmarcar ou mudar, avise pelo WhatsApp.</p>`
+    : `<h3>Não deu para reservar pelo site</h3><p>A conexão falhou. Mande o pedido pelo WhatsApp e o barbeiro marca para você.</p>`)
+    + `<a class="botao botao-zap" id="enviar-zap" target="_blank" rel="noopener" href="${zap(msg.join("\n"))}">${r.ok ? "Avisar no WhatsApp" : "Mandar pedido no WhatsApp"}</a>
+       <button type="button" class="link" id="outro">Marcar outro horário</button>`;
+  $("#form").hidden = true; box.hidden = false; box.focus({preventScroll: true}); box.scrollIntoView({block: "start"});
+  $("#outro").onclick = () => { box.hidden = true; $("#form").hidden = false; montarHoras(); dia.focus(); };
 });
 
 // funcionamento, endereço, equipe
@@ -382,7 +443,7 @@ const atendentes = () => CONFIG.equipe.map(n => link(zap("Olá, " + n + "! Vim p
 function diz(html, quem) { const m = document.createElement("div"); m.className = "msg " + (quem || "loja"); m.innerHTML = html; conversa.appendChild(m); conversa.scrollTop = conversa.scrollHeight; }
 function responde(t) {
   const q = t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-  if (/agend|marc|vaga|reserv/.test(q)) return `Use o <a href="#marcar" onclick="fechar()">pedido de horário</a>: ele abre o WhatsApp da barbearia com tudo preenchido. Se preferir conversar direto:<br>` + atendentes();
+  if (/agend|marc|vaga|reserv/.test(q)) return `Use o <a href="#marcar" onclick="fechar()">pedido de horário</a>: você vê os horários livres e reserva na hora. Se preferir conversar direto:<br>` + atendentes();
   if (/preco|valor|quanto|custa/.test(q)) return CONFIG.servicos.map(s => s.nome + ": " + preco(s.preco)).join("\n") + (CONFIG.servicos.some(s => s.preco == null) ? "\n\nOnde está \"consulte\", o barbeiro passa o valor no WhatsApp." : "");
   if (/hora|abre|fecha|funcion|domingo|sabado|aberto/.test(q)) return SEMANA.map(d => { const h = CONFIG.horarios[d]; return d + ": " + (h ? h[0] + " às " + h[1] : "fechado"); }).join("\n") + "\n\n" + CONFIG.horarioObs;
   if (/onde|endereco|local|fica|mapa|chegar/.test(q)) return CONFIG.endereco ? "Ficamos em " + CONFIG.endereco + "." + (CONFIG.mapa ? "\n" + link(CONFIG.mapa, "Abrir no Google Maps") : "") : "O endereço ainda não está no site. " + link(zap("Olá! Pode me mandar a localização da barbearia?"), "Pedir a localização pelo WhatsApp");
